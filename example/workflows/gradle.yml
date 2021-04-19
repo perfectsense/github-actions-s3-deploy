@@ -39,4 +39,4 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./etc/google-action-build.sh
+      run: ./etc/build-gradle.sh
