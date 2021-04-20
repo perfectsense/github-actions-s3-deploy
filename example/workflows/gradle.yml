@@ -38,5 +38,7 @@ jobs:
       run: echo "GITHUB_ACTIONS_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - name: Clone Github Actions S3 Deploy
+      run: git clone https://github.com/perfectsense/github-actions-s3-deploy.git
     - name: Build with Gradle
-      run: ./etc/build-gradle.sh
+      run: ./github-actions-s3-deploy/build-gradle.sh
