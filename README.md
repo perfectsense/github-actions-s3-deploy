@@ -76,4 +76,13 @@ jobs:
 
 Note that any of the above environment variables can be set in Git Hub Actions Secrets, and do not need to be included in your gradle.yml. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` should always be set to your S3 bucket credentials as Git Hub Actions Secrets, not this file.
 
+## Setting the initial build number.
+If you're moving from another build system, you might want to start from some specific number. The build-number action simply uses a special tag name to store the `build number`, `build-number-x`, so you can just create and push a tag with the number you want to start on. E.g. do
 
+```
+git tag build-number-500
+git push origin build-number-500
+```
+and then your next build number will be 501. The action will always delete older refs that start with build-number-, e.g. when it runs and finds build-number-500 it will create a new tag, `build-number-501` and then delete `build-number-500`.
+
+https://github.com/marketplace/actions/build-number-generator#setting-the-initial-build-number
