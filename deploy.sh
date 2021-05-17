@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -u
+set -e
 
 # Set the following environment variables:
 # DEPLOY_BUCKET = your bucket name
