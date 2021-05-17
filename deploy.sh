@@ -34,9 +34,8 @@ then
     echo "Deploying branch ${GITHUB_REF##*/}"
 
     BUILD_NUM=${GITHUB_RUN_NUMBER}
-    if [[ -z ${BUILD_NUM_OFFSET} ]]
+    if ! [[ -z "${BUILD_NUM_OFFSET}" ]]
     then
-    else
         BUILD_NUM=$((GITHUB_RUN_NUMBER+BUILD_NUM_OFFSET))
     fi
 
