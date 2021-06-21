@@ -131,7 +131,7 @@ log_end
 log_start "aws_cp"
 for file in $files
 do
-    echo "Deployting $file to s3://$DEPLOY_BUCKET/$target"
+    echo "Deploying $file to s3://$DEPLOY_BUCKET/$target"
     aws s3 cp $file s3://$DEPLOY_BUCKET/$target
 done
 log_end
