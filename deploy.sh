@@ -23,12 +23,14 @@ DEPLOY_BRANCHES=${DEPLOY_BRANCHES:-}
 
 DEPLOY_EXTENSIONS=${DEPLOY_EXTENSIONS:-"jar war zip"}
 
+PULL_REQUEST=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+
 PURGE_OLDER_THAN_DAYS=${PURGE_OLDER_THAN_DAYS:-"90"}
 
 
-if [[ ! -z "$GITHUB_ACTIONS_PULL_REQUEST" && "$GITHUB_ACTIONS_PULL_REQUEST" != "" ]]
+if [[ ! -z "$PULL_REQUEST" && "$PULL_REQUEST" != ""  && "$PULL_REQUEST" != "null" ]]
 then
-   target_path=pull-request/$GITHUB_ACTIONS_PULL_REQUEST
+   target_path=pull-request/$PULL_REQUEST
 elif [[ -z "$DEPLOY_BRANCHES" || "$BRANCH" =~ "$DEPLOY_BRANCHES" ]]
 then
     echo "Deploying branch ${GITHUB_REF##*/}"
