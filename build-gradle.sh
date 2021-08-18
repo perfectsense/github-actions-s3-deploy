@@ -25,6 +25,7 @@ if [ -z "$GITHUB_RUN_NUMBER" ]; then
    fi
 else
     version=""
+    snapshot=true
     echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
     if [[ -z "$GITHUB_ACTIONS_PULL_REQUEST" && "$GITHUB_ACTIONS_PULL_REQUEST" != "" ]]; then
         echo "GITHUB_ACTIONS_PULL_REQUEST ${GITHUB_ACTIONS_PULL_REQUEST}"
@@ -33,7 +34,8 @@ else
     elif [[ "$GITHUB_ACTIONS_TAG" =~ ^v[0-9]+\. ]]; then
         echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
         version=${GITHUB_ACTIONS_TAG/v/}
-
+        snapshot=false
+    
     else
         COMMIT_COUNT=$(git rev-list --count HEAD)
         COMMIT_SHA=$(git rev-parse --short=6 HEAD)
@@ -58,8 +60,8 @@ else
     echo "======================================"
 
     if [[ "$DISABLE_BUILD_SCAN" == "true" ]]; then
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}"
+        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot}
      else
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}" --scan
+        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot} --scan
      fi
 fi
