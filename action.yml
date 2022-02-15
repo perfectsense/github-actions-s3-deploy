@@ -35,6 +35,10 @@ inputs:
     required: false
     default: false
 
+  deploy_bucket:
+    description: 'S3 bucket to deploy to'
+    required: false
+
   deploy_container:
     description: 'Deploy to container build'
     required: false
@@ -78,7 +82,7 @@ runs:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
-        DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET }}
+        DEPLOY_BUCKET: ${{ inputs.deploy_bucket }}
       shell: bash
       run: ./github-actions-s3-deploy/deploy.sh
 
