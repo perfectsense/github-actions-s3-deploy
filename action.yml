@@ -75,9 +75,9 @@ runs:
     - name: Deploy to S3
       if: ${{ inputs.deploy_s3 }}
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
         DEPLOY_BUCKET: ${{ secrets.DEPLOY_BUCKET }}
       shell: bash
       run: ./github-actions-s3-deploy/deploy.sh
