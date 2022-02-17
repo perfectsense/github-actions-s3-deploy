@@ -18,6 +18,10 @@ inputs:
     description: 'Shortname for project'
     required: true
 
+  repository:
+    description: 'Repository name. This overrides the default which is ${project}/${project}'
+    required: false
+
   aws-access-key-id: 
     description: 'AWS Access Key ID'
     required: true
@@ -137,8 +141,16 @@ runs:
         cp web/build/libs/*.war etc/container/web.war
         cd etc/container
 
-        BUILD_TAG="${{ inputs.registry }}/${{ inputs.project }}/${{ inputs.project }}:$build"
-        VERSION_TAG="${{ inputs.registry }}/${{ inputs.project }}/${{ inputs.project }}:$version"
+        PROJECT="${{ inputs.project }}"
+        REPOSITORY="${{ inputs.repository }}"
+
+        if [ -z ${REPOSITORY+x} ]; then
+           REPOSITORY="$PROJECT/$PROJECT"
+        fi
+
+        REGISTRY="${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com"
+        BUILD_TAG="$REGISTRY/$REPOSITORY:$build"
+        VERSION_TAG="$REGISTRY/$REPOSITORY:$version"
 
         docker buildx build --push --build-arg WAR_ARTIFACT=web.war -t $VERSION_TAG -t $BUILD_TAG -f Dockerfile .
 
