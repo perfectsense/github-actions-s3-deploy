@@ -144,7 +144,7 @@ runs:
         PROJECT="${{ inputs.project }}"
         REPOSITORY="${{ inputs.repository }}"
 
-        if [ -z ${REPOSITORY+x} ]; then
+        if [ -z ${REPOSITORY} ]; then
            REPOSITORY="$PROJECT/$PROJECT"
         fi
 
