@@ -48,6 +48,11 @@ inputs:
     required: false
     default: true
 
+  war-build-dir:
+    description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
+    required: false
+    default: 'web/build/libs'
+
 outputs:
   container-build-tag:
     description: "Container build tag. This tag is stable and won't change."
@@ -138,7 +143,7 @@ runs:
             version=development-$(git describe --all | sed 's/heads\///' | sed 's/\//-/g')
         fi
 
-        cp web/build/libs/*.war etc/container/web.war
+        cp ${{ inputs.war-build-dir }}/*.war etc/container/web.war
         cd etc/container
 
         PROJECT="${{ inputs.project }}"
