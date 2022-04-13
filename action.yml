@@ -13,7 +13,7 @@ inputs:
   region:
     description: 'Region project is deployed to'
     required: true
-  
+
   project:
     description: 'Shortname for project'
     required: true
@@ -22,7 +22,7 @@ inputs:
     description: 'Repository name. This overrides the default which is ${project}/${project}'
     required: false
 
-  aws-access-key-id: 
+  aws-access-key-id:
     description: 'AWS Access Key ID'
     required: true
 
@@ -41,6 +41,10 @@ inputs:
 
   deploy-bucket:
     description: 'S3 bucket to deploy to'
+    required: false
+
+  deploy-bucket-prefix:
+    description: 'Directory prefix within the S3 bucket'
     required: false
 
   deploy-container:
@@ -92,6 +96,8 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
         DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
+        DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
+        DEPLOY_SOURCE_DIR: ${{ inputs.war-build-dir }}
       shell: bash
       run: ./github-actions-s3-deploy/deploy.sh
 
