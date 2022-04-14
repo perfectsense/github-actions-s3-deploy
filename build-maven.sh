@@ -5,29 +5,13 @@ set -eu
 # Set a default JAVA_TOOL_OPTIONS if it hasn't already been specified
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:--Xmx4096m}"
 
-GRADLE_PARAMS=${GRADLE_PARAMS:-}
-GRADLE_CACHE_USERNAME=${GRADLE_CACHE_USERNAME:-}
-GRADLE_CACHE_PASSWORD=${GRADLE_CACHE_PASSWORD:-}
-DISABLE_BUILD_SCAN=${DISABLE_BUILD_SCAN:-false}
-
 if [[ $(git rev-parse --is-shallow-repository) == "true" ]]
 then
     git fetch --unshallow
 fi
 
-if [[ -z "$GRADLE_CACHE_USERNAME" || -z "$GRADLE_CACHE_PASSWORD" ]]; then
-    echo "============================================================"
-    echo "Set GRADLE_CACHE_USERNAME and GRADLE_CACHE_PASSWORD"
-    echo "environment variables to take advantage of the build cache!"
-    echo "============================================================"
-fi
-
 if [ -z ${GITHUB_RUN_NUMBER+x} ]; then
-  if [[ "$DISABLE_BUILD_SCAN" == "true" ]]; then
-      ./gradlew $GRADLE_PARAMS
-   else
-      ./gradlew $GRADLE_PARAMS --scan
-   fi
+    mvn -Plibrary verify
 else
     version=""
     snapshot=true
@@ -63,9 +47,6 @@ else
     echo "Building version ${version}"
     echo "======================================"
 
-    if [[ "$DISABLE_BUILD_SCAN" == "true" ]]; then
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot}"
-     else
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot}" --scan
-     fi
+    mvn -B versions:set -DnewVersion="${version}"
+    mvn -B -Plibrary verify
 fi

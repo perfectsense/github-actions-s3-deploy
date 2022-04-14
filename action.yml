@@ -52,6 +52,14 @@ inputs:
     required: false
     default: true
 
+  build-maven:
+    description: 'Build with Maven'
+    default: false
+
+  build-gradle:
+    description: 'Build with Gradle'
+    default: true
+
   war-build-dir:
     description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
     required: false
@@ -69,7 +77,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up JDK
       uses: actions/setup-java@v2
@@ -79,13 +87,23 @@ runs:
 
     - name: Get Tag Version
       shell: bash
-      run: echo "GITHUB_ACTIONS_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      run: |
+        echo "GITHUB_ACTIONS_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        echo "GITHUB_ACTIONS_PULL_REQUEST=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-    - name: Clone Github Actions S3 Deploy
+    - uses: actions/checkout@v3
+      with:
+        repository: perfectsense/github-actions-s3-deploy
+        ref: feature/maven
+        path: ./github-actions-s3-deploy
+
+    - name: Build with Maven
+      if: ${{ inputs.build-maven == 'true' }}
       shell: bash
-      run: git clone https://github.com/perfectsense/github-actions-s3-deploy.git
+      run: ./github-actions-s3-deploy/build-maven.sh
 
     - name: Build with Gradle
+      if: ${{ inputs.build-gradle == 'true' }}
       shell: bash
       run: ./github-actions-s3-deploy/build-gradle.sh
 
@@ -95,6 +113,7 @@ runs:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
         AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
+        AWS_DEFAULT_REGION: ${{ inputs.region }}
         DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
         DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
         DEPLOY_SOURCE_DIR: ${{ inputs.war-build-dir }}
@@ -124,8 +143,6 @@ runs:
     - name: Build Container
       id: build-container
       if: ${{ inputs.deploy-container == 'true' }}
-      env:
-        GITHUB_ACTIONS_PULL_REQUEST: ${{ github.event.pull_request.number }}
       shell: bash
       run: |
         version=""
