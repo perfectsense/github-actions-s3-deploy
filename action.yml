@@ -94,7 +94,7 @@ runs:
     - uses: actions/checkout@v3
       with:
         repository: perfectsense/github-actions-s3-deploy
-        ref: feature/maven
+        ref: v1
         path: ./github-actions-s3-deploy
 
     - name: Build with Maven
