@@ -29,6 +29,15 @@ if [ -z ${GITHUB_RUN_NUMBER+x} ]; then
       ./gradlew $GRADLE_PARAMS --scan
    fi
 else
+
+    BUILD_NUM=${GITHUB_RUN_NUMBER}
+    if ! [[ -z "${BUILD_NUM_OFFSET:-}" ]]
+    then
+        BUILD_NUM=$((GITHUB_RUN_NUMBER+BUILD_NUM_OFFSET))
+    fi
+
+    export TRAVIS_BUILD_NUMBER=${BUILD_NUM}
+
     version=""
     snapshot=true
     echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
@@ -47,16 +56,7 @@ else
         version=$(git describe --tags --match "v[0-9]*" --abbrev=6 HEAD || echo v0-$COMMIT_COUNT-g$COMMIT_SHA)
         version=${version/v/}
 
-        BUILD_NUM=${GITHUB_RUN_NUMBER}
-        if ! [[ -z "${BUILD_NUM_OFFSET:-}" ]]
-        then
-            BUILD_NUM=$((GITHUB_RUN_NUMBER+BUILD_NUM_OFFSET))
-        fi
-
         version+=+$BUILD_NUM
-
-        export TRAVIS_BUILD_NUMBER=${BUILD_NUM}
-
     fi
 
     echo "======================================"
