@@ -60,6 +60,10 @@ inputs:
     description: 'Build with Gradle'
     default: true
 
+  cache-npm:
+    description: 'Cache NPM'
+    default: true
+
   war-build-dir:
     description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
     required: false
@@ -96,6 +100,38 @@ runs:
         repository: perfectsense/github-actions-s3-deploy
         ref: v1
         path: ./github-actions-s3-deploy
+
+    - name: Maven Cache
+      if: ${{ inputs.build-maven == 'true' }}
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Gradle Cache
+      if: ${{ inputs.build-gradle == 'true' }}
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: NPM Cache
+      if: ${{ inputs.cache-npm == 'true' }}
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          ~/.yarn/cache
+          ~/.config/yarn/global
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
 
     - name: Build with Maven
       if: ${{ inputs.build-maven == 'true' }}
