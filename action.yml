@@ -60,6 +60,16 @@ inputs:
     description: 'Build with Gradle'
     default: true
 
+  java-distribution:
+    description: 'Java distribution'
+    required: false
+    default: 'adopt'
+
+  java-version:
+    description: 'Java version'
+    required: false
+    default: '11'
+
   cache-npm:
     description: 'Cache NPM'
     default: true
@@ -86,9 +96,8 @@ runs:
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        java-version: '11'
-        distribution: 'adopt'
-
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.java-distribution }}
     - name: Get Tag Version
       shell: bash
       run: |
