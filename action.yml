@@ -98,6 +98,9 @@ runs:
       with:
         java-version: ${{ inputs.java-version }}
         distribution: ${{ inputs.java-distribution }}
+    - name: Setup Gradle
+      if: ${{ inputs.build-gradle == 'true' }}
+      uses: gradle/gradle-build-action@v2
     - name: Get Tag Version
       shell: bash
       run: |
