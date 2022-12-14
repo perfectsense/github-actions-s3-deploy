@@ -105,6 +105,8 @@ then
         echo "Getting number of items in $DEPLOY_BUCKET with prefix $cleanup_prefix$suffix/..."
         number_of_items=`aws s3api list-objects --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=json --query="length(Contents[])"` || number_of_items=0
         echo "$number_of_items items in $DEPLOY_BUCKET/$cleanup_prefix$suffix/..."
+        
+        aws s3api list-objects --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=text | \
         while read -r line
         do
             last_modified=`echo "$line" | awk -F'\t' '{print $4}'`
