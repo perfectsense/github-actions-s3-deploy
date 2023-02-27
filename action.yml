@@ -60,14 +60,6 @@ inputs:
     description: 'Build with Gradle'
     default: true
 
-  gradle-cache-username:
-    description: 'Gradle Remote Cache user name'
-    default: ${{ secrets.GRADLE_CACHE_USERNAME }}
-
-  gradle-cache-password:
-    description: 'Gradle Remote Cache password'
-    default: ${{ secrets.GRADLE_CACHE_PASSWORD }}
-
   java-distribution:
     description: 'Java distribution'
     required: false
@@ -159,9 +151,6 @@ runs:
       if: ${{ inputs.build-gradle == 'true' }}
       shell: bash
       run: ./github-actions-s3-deploy/build-gradle.sh
-      env:
-          GRADLE_CACHE_USERNAME: ${{ inputs.gradle-cache-username }}
-          GRADLE_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
 
     - name: Deploy to S3
       if: ${{ inputs.deploy-s3 == 'true' }}
