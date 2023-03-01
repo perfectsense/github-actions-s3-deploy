@@ -100,9 +100,9 @@ on:
       AWS_SESSION_TOKEN:
         required: false
       GRADLE_CACHE_USERNAME:
-        equired: false
+        required: false
       GRADLE_CACHE_PASSWORD:
-        equired: false
+        required: false
 
 jobs:
   build:
