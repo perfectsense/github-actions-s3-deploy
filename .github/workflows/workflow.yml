@@ -1,5 +1,4 @@
 name: 'Brightspot Build'
-description: 'Build Brightspot'
 
 on:
   workflow_call:
