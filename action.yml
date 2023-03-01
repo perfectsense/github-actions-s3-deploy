@@ -1,6 +1,14 @@
 name: 'Brightspot Build'
 description: 'Build Brightspot'
 
+secrets:
+  GRADLE_USER:
+    description: "Gradle Remote Cache user"
+    required: false
+  GRADLE_PASSWORD:
+    description: "Gradle Remote Cache password"
+    required: false
+
 inputs:
   project-aws-account-id:
     description: 'AWS Account ID of project'
@@ -155,6 +163,9 @@ runs:
 
     - name: Build with Gradle
       if: ${{ inputs.build-gradle == 'true' }}
+      env:
+          GRADLE_CACHE_USERNAME: ${{ secrets.gradle-cache-username }}
+          GRADLE_CACHE_PASSWORD: ${{ secrets.gradle-cache-password }}
       shell: bash
       run: ./github-actions-s3-deploy/build-gradle.sh
 
