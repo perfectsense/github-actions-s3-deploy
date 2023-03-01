@@ -168,6 +168,9 @@ jobs:
       - name: Build with Gradle
         if: ${{ inputs.build-gradle == 'true' }}
         shell: bash
+        env:
+          GRADLE_CACHE_USERNAME: ${{ secrets.GRADLE_CACHE_USERNAME }}
+          GRADLE_CACHE_PASSWORD: ${{ secrets.GRADLE_CACHE_PASSWORD }}
         run: ./github-actions-s3-deploy/build-gradle.sh
 
       - name: Deploy to S3
