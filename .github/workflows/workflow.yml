@@ -24,18 +24,6 @@ on:
         description: 'Repository name. This overrides the default which is ${project}/${project}'
         required: false
 
-      aws-access-key-id:
-        description: 'AWS Access Key ID'
-        required: true
-
-      aws-secret-access-key:
-        description: 'AWS Secret Access Key'
-        required: true
-
-      aws-session-token:
-        description: 'AWS Session Token'
-        required: true
-
       deploy-s3:
         description: 'Deploy to S3 in addition to the container build'
         required: false
@@ -91,6 +79,12 @@ on:
         value: ${{ steps.build-container.outputs.container-build-tag }}
 
     secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      AWS_SESSION_TOKEN:
+        required: false
       GRADLE_CACHE_USERNAME:
         equired: false
       GRADLE_CACHE_PASSWORD:
@@ -165,9 +159,9 @@ jobs:
       - name: Deploy to S3
         if: ${{ inputs.deploy-s3 == 'true' }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-          AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-          AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_DEFAULT_REGION: ${{ inputs.region }}
           DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
           DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
@@ -178,9 +172,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ inputs.aws-access-key-id }}
-          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-          aws-session-token: ${{ inputs.aws-session-token }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN}}
           aws-region: ${{ inputs.region }}
 
       - name: Login to project ECR
