@@ -6,67 +6,82 @@ on:
       project-aws-account-id:
         description: 'AWS Account ID of project'
         required: true
+        type: string
 
       cloud-aws-account-id:
         description: 'AWS Account ID of Cloud project'
         required: true
+        type: string
 
       region:
         description: 'Region project is deployed to'
         required: true
+        type: string
 
       project:
         description: 'Shortname for project'
         required: true
+        type: string
 
       repository:
         description: 'Repository name. This overrides the default which is ${project}/${project}'
         required: false
+        type: string
 
       deploy-s3:
         description: 'Deploy to S3 in addition to the container build'
         required: false
         default: false
+        type: boolean
 
       deploy-bucket:
         description: 'S3 bucket to deploy to'
         required: false
+        type: string
 
       deploy-bucket-prefix:
         description: 'Directory prefix within the S3 bucket'
         required: false
+        type: string
 
       deploy-container:
         description: 'Deploy to container build'
         required: false
         default: true
+        type: boolean
 
       build-maven:
         description: 'Build with Maven'
         default: false
+        type: string
 
       build-gradle:
         description: 'Build with Gradle'
         default: true
+        type: string
 
       java-distribution:
         description: 'Java distribution'
         required: false
         default: 'adopt'
+        type: string
 
       java-version:
         description: 'Java version'
         required: false
         default: '11'
+        type: string
 
       cache-npm:
         description: 'Cache NPM'
         default: true
+        type: string
 
       war-build-dir:
         description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
         required: false
         default: 'web/build/libs'
+        type: string
 
     outputs:
       container-build-tag:
