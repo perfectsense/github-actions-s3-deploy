@@ -83,14 +83,14 @@ on:
         default: 'web/build/libs'
         type: string
 
-    outputs:
-      container-build-tag:
-        description: "Container build tag. This tag is stable and won't change."
-        value: ${{ steps.build-container.outputs.container-build-tag }}
+    # outputs:
+    #   container-build-tag:
+    #     description: "Container build tag. This tag is stable and won't change."
+    #     value: ${{ steps.build-container.outputs.container-build-tag }}
 
-      container-version-tag:
-        description: "Container version tag. This tag is unstable and may move with each build."
-        value: ${{ steps.build-container.outputs.container-build-tag }}
+    #   container-version-tag:
+    #     description: "Container version tag. This tag is unstable and may move with each build."
+    #     value: ${{ steps.build-container.outputs.container-build-tag }}
 
     secrets:
       AWS_ACCESS_KEY_ID:
