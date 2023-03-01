@@ -1,232 +1,242 @@
 name: 'Brightspot Build'
 description: 'Build Brightspot'
 
-inputs:
-  project-aws-account-id:
-    description: 'AWS Account ID of project'
-    required: true
+on:
+  workflow_call:
+    inputs:
+      project-aws-account-id:
+        description: 'AWS Account ID of project'
+        required: true
 
-  cloud-aws-account-id:
-    description: 'AWS Account ID of Cloud project'
-    required: true
+      cloud-aws-account-id:
+        description: 'AWS Account ID of Cloud project'
+        required: true
 
-  region:
-    description: 'Region project is deployed to'
-    required: true
+      region:
+        description: 'Region project is deployed to'
+        required: true
 
-  project:
-    description: 'Shortname for project'
-    required: true
+      project:
+        description: 'Shortname for project'
+        required: true
 
-  repository:
-    description: 'Repository name. This overrides the default which is ${project}/${project}'
-    required: false
+      repository:
+        description: 'Repository name. This overrides the default which is ${project}/${project}'
+        required: false
 
-  aws-access-key-id:
-    description: 'AWS Access Key ID'
-    required: true
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
 
-  aws-secret-access-key:
-    description: 'AWS Secret Access Key'
-    required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
 
-  aws-session-token:
-    description: 'AWS Session Token'
-    required: true
+      aws-session-token:
+        description: 'AWS Session Token'
+        required: true
 
-  deploy-s3:
-    description: 'Deploy to S3 in addition to the container build'
-    required: false
-    default: false
+      deploy-s3:
+        description: 'Deploy to S3 in addition to the container build'
+        required: false
+        default: false
 
-  deploy-bucket:
-    description: 'S3 bucket to deploy to'
-    required: false
+      deploy-bucket:
+        description: 'S3 bucket to deploy to'
+        required: false
 
-  deploy-bucket-prefix:
-    description: 'Directory prefix within the S3 bucket'
-    required: false
+      deploy-bucket-prefix:
+        description: 'Directory prefix within the S3 bucket'
+        required: false
 
-  deploy-container:
-    description: 'Deploy to container build'
-    required: false
-    default: true
+      deploy-container:
+        description: 'Deploy to container build'
+        required: false
+        default: true
 
-  build-maven:
-    description: 'Build with Maven'
-    default: false
+      build-maven:
+        description: 'Build with Maven'
+        default: false
 
-  build-gradle:
-    description: 'Build with Gradle'
-    default: true
+      build-gradle:
+        description: 'Build with Gradle'
+        default: true
 
-  java-distribution:
-    description: 'Java distribution'
-    required: false
-    default: 'adopt'
+      java-distribution:
+        description: 'Java distribution'
+        required: false
+        default: 'adopt'
 
-  java-version:
-    description: 'Java version'
-    required: false
-    default: '11'
+      java-version:
+        description: 'Java version'
+        required: false
+        default: '11'
 
-  cache-npm:
-    description: 'Cache NPM'
-    default: true
+      cache-npm:
+        description: 'Cache NPM'
+        default: true
 
-  war-build-dir:
-    description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
-    required: false
-    default: 'web/build/libs'
+      war-build-dir:
+        description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
+        required: false
+        default: 'web/build/libs'
 
-outputs:
-  container-build-tag:
-    description: "Container build tag. This tag is stable and won't change."
-    value: ${{ steps.build-container.outputs.container-build-tag }}
+    outputs:
+      container-build-tag:
+        description: "Container build tag. This tag is stable and won't change."
+        value: ${{ steps.build-container.outputs.container-build-tag }}
 
-  container-version-tag:
-    description: "Container version tag. This tag is unstable and may move with each build."
-    value: ${{ steps.build-container.outputs.container-build-tag }}
+      container-version-tag:
+        description: "Container version tag. This tag is unstable and may move with each build."
+        value: ${{ steps.build-container.outputs.container-build-tag }}
 
-runs:
-  using: "composite"
-  steps:
-    - uses: actions/checkout@v3
+    secrets:
+      GRADLE_CACHE_USERNAME:
+        equired: false
+      GRADLE_CACHE_PASSWORD:
+        equired: false
 
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: ${{ inputs.java-version }}
-        distribution: ${{ inputs.java-distribution }}
-    - name: Get Tag Version
-      shell: bash
-      run: |
-        echo "GITHUB_ACTIONS_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-        echo "GITHUB_ACTIONS_PULL_REQUEST=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-    - uses: actions/checkout@v3
-      with:
-        repository: perfectsense/github-actions-s3-deploy
-        ref: v1
-        path: ./github-actions-s3-deploy
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ inputs.java-version }}
+          distribution: ${{ inputs.java-distribution }}
+      - name: Get Tag Version
+        shell: bash
+        run: |
+          echo "GITHUB_ACTIONS_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          echo "GITHUB_ACTIONS_PULL_REQUEST=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
-    - name: Maven Cache
-      if: ${{ inputs.build-maven == 'true' }}
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+      - uses: actions/checkout@v3
+        with:
+          repository: perfectsense/github-actions-s3-deploy
+          ref: v1
+          path: ./github-actions-s3-deploy
 
-    - name: Gradle Cache
-      if: ${{ inputs.build-gradle == 'true' }}
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+      - name: Maven Cache
+        if: ${{ inputs.build-maven == 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-    - name: NPM Cache
-      if: ${{ inputs.cache-npm == 'true' }}
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.npm
-          ~/.yarn/cache
-          ~/.config/yarn/global
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-npm-
+      - name: Gradle Cache
+        if: ${{ inputs.build-gradle == 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-    - name: Build with Maven
-      if: ${{ inputs.build-maven == 'true' }}
-      shell: bash
-      run: ./github-actions-s3-deploy/build-maven.sh
+      - name: NPM Cache
+        if: ${{ inputs.cache-npm == 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            ~/.yarn/cache
+            ~/.config/yarn/global
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-    - name: Build with Gradle
-      if: ${{ inputs.build-gradle == 'true' }}
-      shell: bash
-      run: ./github-actions-s3-deploy/build-gradle.sh
+      - name: Build with Maven
+        if: ${{ inputs.build-maven == 'true' }}
+        shell: bash
+        run: ./github-actions-s3-deploy/build-maven.sh
 
-    - name: Deploy to S3
-      if: ${{ inputs.deploy-s3 == 'true' }}
-      env:
-        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
-        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
-        AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
-        AWS_DEFAULT_REGION: ${{ inputs.region }}
-        DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
-        DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
-        DEPLOY_SOURCE_DIR: ${{ inputs.war-build-dir }}
-      shell: bash
-      run: ./github-actions-s3-deploy/deploy.sh
+      - name: Build with Gradle
+        if: ${{ inputs.build-gradle == 'true' }}
+        shell: bash
+        run: ./github-actions-s3-deploy/build-gradle.sh
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-session-token: ${{ inputs.aws-session-token }}
-        aws-region: ${{ inputs.region }}
+      - name: Deploy to S3
+        if: ${{ inputs.deploy-s3 == 'true' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+          AWS_SESSION_TOKEN: ${{ inputs.aws-session-token }}
+          AWS_DEFAULT_REGION: ${{ inputs.region }}
+          DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
+          DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
+          DEPLOY_SOURCE_DIR: ${{ inputs.war-build-dir }}
+        shell: bash
+        run: ./github-actions-s3-deploy/deploy.sh
 
-    - name: Login to project ECR
-      uses: docker/login-action@v1
-      if: ${{ inputs.deploy-container == 'true' }}
-      with:
-          registry: ${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ inputs.aws-access-key-id }}
+          aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+          aws-session-token: ${{ inputs.aws-session-token }}
+          aws-region: ${{ inputs.region }}
 
-    - name: Login to Brightspot Cloud ECR
-      uses: docker/login-action@v1
-      if: ${{ inputs.deploy-container == 'true' }}
-      with:
-          registry: ${{ inputs.cloud-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
+      - name: Login to project ECR
+        uses: docker/login-action@v1
+        if: ${{ inputs.deploy-container == 'true' }}
+        with:
+            registry: ${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
 
-    - name: Build Container
-      id: build-container
-      if: ${{ inputs.deploy-container == 'true' }}
-      shell: bash
-      run: |
-        version=""
-        build=""
+      - name: Login to Brightspot Cloud ECR
+        uses: docker/login-action@v1
+        if: ${{ inputs.deploy-container == 'true' }}
+        with:
+            registry: ${{ inputs.cloud-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
 
-        echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
-        echo "GITHUB_ACTIONS_PULL_REQUEST ${GITHUB_ACTIONS_PULL_REQUEST}"
+      - name: Build Container
+        id: build-container
+        if: ${{ inputs.deploy-container == 'true' }}
+        shell: bash
+        run: |
+          version=""
+          build=""
 
-        if [[ ! -z "$GITHUB_ACTIONS_PULL_REQUEST" && "$GITHUB_ACTIONS_PULL_REQUEST" != "" ]]; then
-            version="pullrequest-$GITHUB_ACTIONS_PULL_REQUEST"
-            build=pullrequest-$GITHUB_ACTIONS_PULL_REQUEST-build$GITHUB_RUN_NUMBER
-        elif [[ "$GITHUB_ACTIONS_TAG" =~ ^v[0-9]+\. ]]; then
-            echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
-            version=release-${GITHUB_ACTIONS_TAG/v/}
-            build=release-${GITHUB_ACTIONS_TAG/v/}
-        else
-            COMMIT_COUNT=$(git rev-list --count HEAD)
-            COMMIT_SHA=$(git rev-parse --short=6 HEAD)
-            build=development-$(git describe --all | sed 's/heads\///' | sed 's/\//-/g')
-            build+=-build$GITHUB_RUN_NUMBER
-            version=development-$(git describe --all | sed 's/heads\///' | sed 's/\//-/g')
-        fi
+          echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
+          echo "GITHUB_ACTIONS_PULL_REQUEST ${GITHUB_ACTIONS_PULL_REQUEST}"
 
-        cp ${{ inputs.war-build-dir }}/*.war etc/container/web.war
-        cd etc/container
+          if [[ ! -z "$GITHUB_ACTIONS_PULL_REQUEST" && "$GITHUB_ACTIONS_PULL_REQUEST" != "" ]]; then
+              version="pullrequest-$GITHUB_ACTIONS_PULL_REQUEST"
+              build=pullrequest-$GITHUB_ACTIONS_PULL_REQUEST-build$GITHUB_RUN_NUMBER
+          elif [[ "$GITHUB_ACTIONS_TAG" =~ ^v[0-9]+\. ]]; then
+              echo "GITHUB_ACTIONS_TAG ${GITHUB_ACTIONS_TAG}"
+              version=release-${GITHUB_ACTIONS_TAG/v/}
+              build=release-${GITHUB_ACTIONS_TAG/v/}
+          else
+              COMMIT_COUNT=$(git rev-list --count HEAD)
+              COMMIT_SHA=$(git rev-parse --short=6 HEAD)
+              build=development-$(git describe --all | sed 's/heads\///' | sed 's/\//-/g')
+              build+=-build$GITHUB_RUN_NUMBER
+              version=development-$(git describe --all | sed 's/heads\///' | sed 's/\//-/g')
+          fi
 
-        PROJECT="${{ inputs.project }}"
-        REPOSITORY="${{ inputs.repository }}"
+          cp ${{ inputs.war-build-dir }}/*.war etc/container/web.war
+          cd etc/container
 
-        if [ -z ${REPOSITORY} ]; then
-           REPOSITORY="$PROJECT/$PROJECT"
-        fi
+          PROJECT="${{ inputs.project }}"
+          REPOSITORY="${{ inputs.repository }}"
 
-        REGISTRY="${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com"
-        BUILD_TAG="$REGISTRY/$REPOSITORY:$build"
-        VERSION_TAG="$REGISTRY/$REPOSITORY:$version"
+          if [ -z ${REPOSITORY} ]; then
+             REPOSITORY="$PROJECT/$PROJECT"
+          fi
 
-        docker buildx build --push --build-arg WAR_ARTIFACT=web.war -t $VERSION_TAG -t $BUILD_TAG -f Dockerfile .
+          REGISTRY="${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com"
+          BUILD_TAG="$REGISTRY/$REPOSITORY:$build"
+          VERSION_TAG="$REGISTRY/$REPOSITORY:$version"
 
-        echo "::set-output name=container-build-tag::$(echo $BUILD_TAG)"
-        echo "::set-output name=container-version-tag::$(echo $VERSION_TAG)"
+          docker buildx build --push --build-arg WAR_ARTIFACT=web.war -t $VERSION_TAG -t $BUILD_TAG -f Dockerfile .
+
+          echo "::set-output name=container-build-tag::$(echo $BUILD_TAG)"
+          echo "::set-output name=container-version-tag::$(echo $VERSION_TAG)"
 
