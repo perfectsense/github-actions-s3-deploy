@@ -147,6 +147,12 @@ runs:
       shell: bash
       run: ./github-actions-s3-deploy/build-maven.sh
 
+    - name: Sets Env Vars for Gradle Remote Cache
+      if: ${{ inputs.build-gradle == 'true' }} && [ "$SECRET" != "" ]; then
+      run: |
+        echo "GRADLE_CACHE_USERNAME=${{ secrets.GRADLE_CACHE_USERNAME }}" >> $GITHUB_ENV |        
+        echo "GRADLE_CACHE_PASSWORD=${{ secrets.GRADLE_CACHE_PASSWORD }}" >> $GITHUB_ENV
+
     - name: Build with Gradle
       if: ${{ inputs.build-gradle == 'true' }}
       shell: bash
