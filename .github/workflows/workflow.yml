@@ -101,13 +101,8 @@ jobs:
     runs-on: ubuntu-latest
     # Map the job outputs to step outputs
     outputs:
-      container-build-tag:
-        description: "Container build tag. This tag is stable and won't change."
-        value: ${{ steps.build-container.outputs.container-build-tag }}
-
-      container-version-tag:
-        description: "Container version tag. This tag is unstable and may move with each build."
-        value: ${{ steps.build-container.outputs.container-build-tag }}
+      container-build-tag: ${{ steps.build-container.outputs.container-build-tag }}
+      container-version-tag: ${{ steps.build-container.outputs.container-version-tag }}
     steps:
       - uses: actions/checkout@v3
 
