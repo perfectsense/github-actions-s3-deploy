@@ -84,11 +84,11 @@ on:
         type: string
 
     secrets:
-      AWS_ACCESS_KEY_ID:
+      CLOUD_AWS_ACCESS_KEY_ID:
         required: false
-      AWS_SECRET_ACCESS_KEY:
+      CLOUD_AWS_SECRET_ACCESS_KEY:
         required: false
-      AWS_SESSION_TOKEN:
+      CLOUD_AWS_SESSION_TOKEN:
         required: false
       GRADLE_CACHE_USERNAME:
         required: false
@@ -171,9 +171,9 @@ jobs:
       - name: Deploy to S3
         if: ${{ inputs.deploy-s3 == 'true' }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CLOUD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CLOUD_AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.CLOUD_AWS_SESSION_TOKEN }}
           AWS_DEFAULT_REGION: ${{ inputs.region }}
           DEPLOY_BUCKET: ${{ inputs.deploy-bucket }}
           DEPLOY_BUCKET_PREFIX: ${{ inputs.deploy-bucket-prefix }}
@@ -184,9 +184,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN}}
+          aws-access-key-id: ${{ secrets.CLOUD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CLOUD_AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.CLOUD_AWS_SESSION_TOKEN}}
           aws-region: ${{ inputs.region }}
 
       - name: Login to project ECR
