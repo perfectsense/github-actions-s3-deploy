@@ -3,7 +3,7 @@
 set -eu
 
 # Set a default JAVA_TOOL_OPTIONS if it hasn't already been specified
-export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:--Xmx8192}"
+export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:--Xmx8192m}"
 
 if [[ $(git rev-parse --is-shallow-repository) == "true" ]]
 then
