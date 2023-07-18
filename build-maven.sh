@@ -4,6 +4,7 @@ set -eu
 
 # Set a default JAVA_TOOL_OPTIONS if it hasn't already been specified
 export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:--Xmx8192m}"
+DISABLE_CHECKSTYLE=${DISABLE_CHECKSTYLE:-false}
 
 if [[ $(git rev-parse --is-shallow-repository) == "true" ]]
 then
@@ -11,7 +12,11 @@ then
 fi
 
 if [ -z ${GITHUB_RUN_NUMBER+x} ]; then
-    mvn -Plibrary verify
+    if [[ "$DISABLE_CHECKSTYLE" == "true" ]]; then
+        mvn package
+    else
+        mvn -Plibrary verify
+    fi
 else
     version=""
     snapshot=true
@@ -48,5 +53,10 @@ else
     echo "======================================"
 
     mvn -B versions:set -DnewVersion="${version}"
-    mvn -B -Plibrary verify
+    
+    if [[ "$DISABLE_CHECKSTYLE" == "true" ]]; then
+        mvn -B package
+    else
+        mvn -B -Plibrary verify
+    fi
 fi
