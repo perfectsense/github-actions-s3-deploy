@@ -76,7 +76,7 @@ inputs:
 
   checkout-repo:
     description: "Checkout repo, defaults to true. Can be set to false to re-use the build created from another step"
-    default: false
+    default: true
 
   war-build-dir:
     description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
