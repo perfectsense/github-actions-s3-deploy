@@ -74,6 +74,10 @@ inputs:
     description: 'Cache NPM'
     default: true
 
+  checkout-repo:
+    description: "Checkout repo, defaults to true. Can be set to false to re-use the build created from another step"
+    default: false
+
   war-build-dir:
     description: 'Directory containing the compiled WAR file. This overrides the default which is web/build/libs'
     required: false
@@ -105,6 +109,7 @@ runs:
         echo "GITHUB_ACTIONS_PULL_REQUEST=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
 
     - uses: actions/checkout@v3
+      if: ${{ inputs.checkout-repo == 'true' }}
       with:
         repository: perfectsense/github-actions-s3-deploy
         ref: v1
