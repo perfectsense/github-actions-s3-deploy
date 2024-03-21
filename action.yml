@@ -195,7 +195,7 @@ runs:
 
     - name: Build Container
       id: build-container
-      if: ${{ inputs.deploy-container == 'true' }}
+      if: ${{ inputs.deploy-container == 'true' && github.actor!= 'dependabot[bot]' }} 
       shell: bash
       run: |
         version=""
