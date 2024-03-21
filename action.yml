@@ -159,7 +159,7 @@ runs:
       run: ./github-actions-s3-deploy/build-gradle.sh
 
     - name: Deploy to S3
-      if: ${{ inputs.deploy-s3 == 'true' }}
+      if: ${{ inputs.deploy-s3 == 'true' && github.actor!= 'dependabot[bot]' }} 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
@@ -172,6 +172,7 @@ runs:
       run: ./github-actions-s3-deploy/deploy.sh
 
     - name: Configure AWS Credentials
+      if: github.actor!= 'dependabot[bot]'
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ inputs.aws-access-key-id }}
@@ -182,13 +183,13 @@ runs:
 
     - name: Login to project ECR
       uses: docker/login-action@v1
-      if: ${{ inputs.deploy-container == 'true' }}
+      if: ${{ inputs.deploy-container == 'true' && github.actor!= 'dependabot[bot]' }}
       with:
           registry: ${{ inputs.project-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
 
     - name: Login to Brightspot Cloud ECR
       uses: docker/login-action@v1
-      if: ${{ inputs.deploy-container == 'true' }}
+      if: ${{ inputs.deploy-container == 'true' && github.actor!= 'dependabot[bot]' }}
       with:
           registry: ${{ inputs.cloud-aws-account-id }}.dkr.ecr.${{ inputs.region }}.amazonaws.com
 
