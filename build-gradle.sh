@@ -64,8 +64,8 @@ else
     echo "======================================"
 
     if [[ "$DISABLE_BUILD_SCAN" == "true" ]]; then
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot}"
+        ./gradlew $GRADLE_PARAMS -PbuildNumber="${BUILD_NUM}" -Prelease="${version}" -Psnapshot="${snapshot}"
      else
-        ./gradlew $GRADLE_PARAMS -Prelease="${version}" -Psnapshot="${snapshot}" --scan
+        ./gradlew $GRADLE_PARAMS -PbuildNumber="${BUILD_NUM}" -Prelease="${version}" -Psnapshot="${snapshot}" --scan
      fi
 fi
