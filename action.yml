@@ -63,7 +63,7 @@ inputs:
   java-distribution:
     description: 'Java distribution'
     required: false
-    default: 'adopt'
+    default: 'temurin'
 
   java-version:
     description: 'Java version'
