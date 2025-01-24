@@ -72,11 +72,10 @@ if ! [ -x "$(command -v aws)" ]; then
     export PATH=~/.local/bin:$PATH
 fi
 
-aws s3api list-objects --bucket $DEPLOY_BUCKET --prefix $target --output=text | \
-while read -r line
+aws s3api list-objects-v2 --bucket $DEPLOY_BUCKET --prefix $target --output=json | jq -r '.Contents[] | .Key' | \
+while read -r filename
 do
-    filename=`echo "$line" | awk -F'\t' '{print $3}'`
-    if [[ $filename != "" && $filename != "None" ]]    
+    if [[ $filename != "" && $filename != "None" ]]
     then
         echo "Deleting existing artifact s3://$DEPLOY_BUCKET/$filename."
         aws s3 rm s3://$DEPLOY_BUCKET/$filename
@@ -103,20 +102,20 @@ then
         # track number of items in the bucket to ensure we don't delete everything, which would break the _deploy servlet
         item_count=0
         echo "Getting number of items in $DEPLOY_BUCKET with prefix $cleanup_prefix$suffix/..."
-        number_of_items=`aws s3api list-objects --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=json --query="length(Contents[])"` || number_of_items=0
+        number_of_items=`aws s3api list-objects-v2 --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=json --query="length(Contents[])"` || number_of_items=0
         echo "$number_of_items items in $DEPLOY_BUCKET/$cleanup_prefix$suffix/..."
         
-        aws s3api list-objects --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=text | \
+        aws s3api list-objects-v2 --bucket $DEPLOY_BUCKET --prefix $cleanup_prefix$suffix/ --output=json | jq -r '[.Contents[] | .LastModified, .Key] | @tsv' | \
         while read -r line
         do
-            last_modified=`echo "$line" | awk -F'\t' '{print $4}'`
+            last_modified=`echo "$line" | cut -f1`
             if [[ -z $last_modified ]]
             then
                 continue
             fi
             item_count=$((item_count+1))
             last_modified_ts=`date -d"$last_modified" +%s`
-            filename=`echo "$line" | awk -F'\t' '{print $3}'`
+            filename=`echo "$line" | cut -f2`
             echo "File # $item_count: $filename. Last modified: $last_modified_ts"
             if [[ $last_modified_ts -lt $older_than_ts ]]
             then
